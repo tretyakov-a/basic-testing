@@ -6,20 +6,14 @@ import {
   TransferFailedError,
   SynchronizationFailedError,
 } from '.';
-import * as lodash from 'lodash';
+import lodash from 'lodash';
 
-const lodashMock = lodash as { random: () => number };
-
-jest.mock('lodash', () => ({
-  __esModule: true,
-  random: jest.fn(),
-}));
-
+jest.mock('lodash');
 
 describe('BankAccount', () => {
   const startBalance = 100;
   let bankAccount: BankAccount;
-
+  
   beforeEach(() => {
     bankAccount = getBankAccount(startBalance);
   });
@@ -36,7 +30,8 @@ describe('BankAccount', () => {
   });
 
   test('should throw error when transferring more than balance', () => {
-    expect(() => bankAccount.transfer(startBalance + 1, getBankAccount(0))).toThrowError(
+    const offshoreBankAccount = getBankAccount(0);
+    expect(() => bankAccount.transfer(startBalance + 1, offshoreBankAccount)).toThrowError(
       InsufficientFundsError,
     );
   });
@@ -62,19 +57,23 @@ describe('BankAccount', () => {
   });
 
   test('fetchBalance should return number in case if request did not failed', async () => {
-    lodashMock.random = () => 42;
-    let result = await bankAccount.fetchBalance();
+    (lodash.random as jest.Mock).mockImplementation(() => 42);
+    const result = await bankAccount.fetchBalance();
     expect(typeof result).toBe('number');
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
-    lodashMock.random = () => 42;
+    (lodash.random as jest.Mock).mockImplementation(() => 42);
     await bankAccount.synchronizeBalance();
     expect(bankAccount.getBalance()).toBe(42);
   });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
-    lodashMock.random = () => 0;
+    (lodash.random as jest.Mock).mockImplementation(() => 0);
+    
+    const result = await bankAccount.fetchBalance();
+    expect(result).toBeNull();
+
     await expect(bankAccount.synchronizeBalance()).rejects.toBeInstanceOf(SynchronizationFailedError);
   });
 });

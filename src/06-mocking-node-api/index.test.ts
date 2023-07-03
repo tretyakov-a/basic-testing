@@ -1,22 +1,11 @@
 // Uncomment the code below and write your tests
 import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
-import * as fs from 'fs';
-import * as fsPromises from 'fs/promises';
+import fs from 'fs';
+import fsPromises from 'fs/promises';
 import { join } from 'path';
 
-const fsPromisesMock = fsPromises as { readFile: (path: fs.PathLike) => Promise<Buffer> };
-const fsMock = fs as { existsSync: (path: fs.PathLike) => boolean };
-
-jest.mock('fs', () => ({
-  __esModule: true,
-  existsSync: jest.fn(),
-}));
-
-jest.mock('fs/promises', () => ({
-  __esModule: true,
-  readFile: jest.fn(),
-}));
-
+jest.mock('fs');
+jest.mock('fs/promises');
 jest.mock('path', () => ({
   __esModule: true,
   join: jest.fn(),
@@ -82,13 +71,13 @@ describe('readFileAsynchronously', () => {
   });
 
   test('should return null if file does not exist', async () => {
-    fsMock.existsSync = () => false;
+    (fs.existsSync as jest.Mock).mockImplementation(() => false);
     await expect(readFileAsynchronously('testPath')).resolves.toBe(null);
   });
 
   test('should return file content if file exists', async () => {
-    fsMock.existsSync = () => true;
-    fsPromisesMock.readFile = () => Promise.resolve(Buffer.from('test content'));
+    (fs.existsSync as jest.Mock).mockImplementation(() => true);
+    (fsPromises.readFile as jest.Mock).mockImplementation(() => Promise.resolve(Buffer.from('test content')));
     await expect(readFileAsynchronously('testPath')).resolves.toBe('test content');
   });
 });
