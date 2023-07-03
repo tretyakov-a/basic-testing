@@ -13,7 +13,7 @@ jest.mock('lodash');
 describe('BankAccount', () => {
   const startBalance = 100;
   let bankAccount: BankAccount;
-  
+
   beforeEach(() => {
     bankAccount = getBankAccount(startBalance);
   });
@@ -31,9 +31,9 @@ describe('BankAccount', () => {
 
   test('should throw error when transferring more than balance', () => {
     const offshoreBankAccount = getBankAccount(0);
-    expect(() => bankAccount.transfer(startBalance + 1, offshoreBankAccount)).toThrowError(
-      InsufficientFundsError,
-    );
+    expect(() =>
+      bankAccount.transfer(startBalance + 1, offshoreBankAccount),
+    ).toThrowError(InsufficientFundsError);
   });
 
   test('should throw error when transferring to the same account', () => {
@@ -52,7 +52,9 @@ describe('BankAccount', () => {
 
   test('should transfer money', () => {
     const offshoreBankAccount = getBankAccount(0);
-    expect(bankAccount.transfer(startBalance, offshoreBankAccount).getBalance()).toBe(0);
+    expect(
+      bankAccount.transfer(startBalance, offshoreBankAccount).getBalance(),
+    ).toBe(0);
     expect(offshoreBankAccount.getBalance()).toBe(startBalance);
   });
 
@@ -70,10 +72,12 @@ describe('BankAccount', () => {
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
     (lodash.random as jest.Mock).mockImplementation(() => 0);
-    
+
     const result = await bankAccount.fetchBalance();
     expect(result).toBeNull();
 
-    await expect(bankAccount.synchronizeBalance()).rejects.toBeInstanceOf(SynchronizationFailedError);
+    await expect(bankAccount.synchronizeBalance()).rejects.toBeInstanceOf(
+      SynchronizationFailedError,
+    );
   });
 });

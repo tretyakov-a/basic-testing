@@ -2,14 +2,15 @@
 import { mockOne, mockTwo, mockThree, unmockedFunction } from './index';
 
 jest.mock('./index', () => {
-  const originalModule = jest.requireActual<typeof import('./index')>('./index');
+  const originalModule =
+    jest.requireActual<typeof import('./index')>('./index');
   return {
     __esModule: true,
     ...originalModule,
     mockOne: jest.fn(),
     mockTwo: jest.fn(),
     mockThree: jest.fn(),
-  }
+  };
 });
 
 describe('partial mocking', () => {
@@ -17,7 +18,7 @@ describe('partial mocking', () => {
 
   beforeEach(() => {
     logSpy = jest.spyOn(global.console, 'log');
-  })
+  });
 
   afterAll(() => {
     jest.unmock('./index');
